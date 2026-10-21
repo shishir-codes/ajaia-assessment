@@ -11,6 +11,6 @@ __pycache__/
 *.pyc
 
 # tools and logs
-.vercel/
+.vercel
 *.log
 .DS_Store
