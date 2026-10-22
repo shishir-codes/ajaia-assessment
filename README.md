@@ -85,31 +85,33 @@ No database setup is needed. Without `DATABASE_URL`, the API uses PGlite (full P
 | Command | What it does |
 |---|---|
 | `npm run dev` | Web app on 5200 and API on 5288 together |
-| `npm test` | 49 tests on an in memory database |
+| `npm test` | 52 tests on an in memory database |
 | `npm run build` | Production build into `dist/` |
 | `npm run smoke -- <url>` | 39 live HTTP checks against a running copy, local or deployed |
 | `node scripts/reset-demo.mjs` | Restores the two demo documents and their shares (maintainer only) |
 
 ## Tests and verification
 
-`npm test` runs 49 tests in 19 suites with Node's built in test runner against PGlite in memory: no network, no keys, about 13 seconds.
+`npm test` runs 52 tests in 19 suites with Node's built in test runner against PGlite in memory: no network, no keys, about 15 seconds.
 
 - **Access matrix:** owner, editor, viewer and a stranger, for read, edit, share and delete.
 - **Sessions:** 401 on every protected call, forged and tampered cookies rejected and cleared, 405 with an Allow header.
 - **Concurrency:** a stale save gets 409 with the latest document; simultaneous saves from one version, exactly one wins.
-- **Import:** .txt, .md, .markdown and a real .docx built inside the test; 415, 413 and 422 for wrong, oversized, empty, binary and broken files.
+- **Import:** .txt, .md, .markdown and a real .docx built inside the test; 415, 413 and 422 for wrong, oversized, empty, binary and broken files; a .docx "zip bomb" and Markdown built to stall the parser are refused before parsing.
 - **Sanitising:** scripts, event handlers, styles, iframes, SVG, `javascript:` and `data:` links removed; formatting kept.
-- **Validation:** 200 character titles, 500,000 character content, JSON only bodies, unicode, NUL characters, and a second run of schema setup and seeding.
+- **Validation:** 200 character titles, 500,000 character content, JSON only bodies, unicode, NUL characters in text, ids and emails, and a second run of schema setup and seeding.
 - **Safeguards:** the document cap, the creation rate (create and import counted together), the save, share and sign in rate limits with Retry-After, the security headers, and the demo restore run twice.
 
 Beyond the automated suite:
 
 | Check | Result |
 |---|---|
+| Live browser check on the production URL in headless Microsoft Edge, at desktop 1280 and phone 390 px: sign in, formatting, autosave, reload, rename, three imports, file errors, sharing, view only and editor access, a two browser conflict, privacy and delete | 31 of 31 pass |
 | `scripts/smoke.mjs`: real HTTP with real cookies as Alice, Bob and Carol | 39 of 39 pass |
 | Adversarial HTTP checks: 5 MB bodies, 20 simultaneous saves, junk cookies, SQL looking ids, Hebrew, emoji and CJK text | 13 of 13 pass |
+| Adversarial review of file import | A .docx "zip bomb" and Markdown built to stall the parser are refused before parsing, each pinned by a test |
 | Scripted browser QA in headless Microsoft Edge on a fresh database, including two browser conflicts and access loss mid edit | 50 of 50 pass |
-| Phone widths 390 and 320 px, plus the share dialog at 375 px | No horizontal scrolling; the toolbar wraps and Share and Delete become icon buttons |
+| Desktop 1280, tablet 768 (with reduced motion) and phone 390 and 320 px, plus the share dialog at 375 px | No horizontal scrolling; the toolbar wraps and Share and Delete become icon buttons; 32 of 32 visual flows pass |
 | Restart on a file database | Documents and sessions survive; deleted demo documents stay deleted |
 
 ## Deployment

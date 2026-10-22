@@ -15,15 +15,15 @@ Designed, built, tested, deployed on Vercel with a Neon Postgres database, docum
 | Architecture note: priorities, design, data and access model, concurrency, scope decisions, next steps | `docs/ARCHITECTURE.md` |
 | AI workflow note: tools, who did what, guardrails, AI output changed or rejected, verification | `docs/AI_WORKFLOW.md` |
 | Walkthrough video link | `VIDEO_URL.txt` |
-| Screenshots: sign in, home, editor, share dialog, view only, import error, conflict | `docs/screenshots/` |
-| Automated tests (49, run with `npm test`) | `tests/` |
+| Screenshots: sign in, home, editor, share dialog, view only, import error, conflict, plus home and editor on a phone | `docs/screenshots/` |
+| Automated tests (52, run with `npm test`) | `tests/` |
 | Live smoke test (39 checks, run with `npm run smoke -- <url>`) | `scripts/smoke.mjs` |
 | Demo restore script | `scripts/reset-demo.mjs` |
 
 ## In the Google Drive folder
 
 - `README.md`, `ARCHITECTURE.md`, `AI_WORKFLOW.md`, `SUBMISSION.md` and `VIDEO_URL.txt`
-- `screenshots/` with the seven screenshots
+- `screenshots/` with the nine screenshots
 - The source code as a zip of the final commit
 
 ## Demo accounts

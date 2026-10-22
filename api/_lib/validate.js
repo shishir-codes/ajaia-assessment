@@ -7,6 +7,8 @@ export const CONTENT_MAX = 500_000;
 export const DEFAULT_TITLE = 'Untitled document';
 export const ROLES = ['viewer', 'editor'];
 const MAX_INT = 2147483647;
+// Postgres text cannot hold NUL, so ids and emails with control characters are refused before any query.
+const CONTROL_CHARS = /[\u0000-\u001f\u007f]/;
 
 // Length in characters as people count them (an emoji is one, not two UTF-16 units).
 export function charLength(text) {
@@ -46,7 +48,7 @@ export function readContent(value) {
 export function readId(value, label = 'id') {
   if (typeof value !== 'string' || !value.trim()) throw invalidInput(`Missing ${label}.`);
   const id = value.trim();
-  if (id.length > 200) throw invalidInput(`The ${label} is not valid.`);
+  if (id.length > 200 || CONTROL_CHARS.test(id)) throw invalidInput(`The ${label} is not valid.`);
   return id;
 }
 
@@ -61,6 +63,7 @@ export function readEmail(value) {
   if (typeof value !== 'string' || !value.trim()) throw invalidInput('Enter an email address.');
   const email = value.trim().toLowerCase();
   if (email.length > 320) throw invalidInput('That email address is too long.');
+  if (CONTROL_CHARS.test(email)) throw invalidInput('That email address is not valid.');
   return email;
 }
 

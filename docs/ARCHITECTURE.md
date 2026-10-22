@@ -8,7 +8,7 @@ Ajaia Docs is a React single page app on a stateless serverless API, backed by P
 
 1. **No lost or leaked work.** Permissions are enforced on the server and every save is version checked, because a silent overwrite or a leaked document is the failure users never forgive.
 2. **A complete core flow over breadth.** Sign in, create, edit, autosave, import, share and conflict handling each work end to end on desktop and phone.
-3. **Proof, not claims.** 49 automated tests, 39 live HTTP checks, 13 adversarial checks and 50 scripted browser checks, all passing.
+3. **Proof, not claims.** 52 automated tests, 39 live HTTP checks, 13 adversarial checks, 50 scripted browser checks and a 31 step live browser check at desktop and phone sizes, all passing.
 4. **Safe to demo in public.** Limits, rate limits and a one command demo reset let reviewers test freely.
 
 ## Architecture
@@ -65,6 +65,7 @@ Ownership lives on the document; sharing is one row per person with a role. Dele
 ## Sanitising
 
 - One allowlist runs on every write: create, save and import. Allowed: `p br strong b em i u s h1 h2 h3 ul ol li blockquote code pre hr a`.
+- Uploads are checked before parsing: a .docx may unzip to at most 4 MB, so a "zip bomb" is refused, and Markdown complexity is capped, so no single file can stall or crash the server.
 - Links keep only absolute `http`, `https` and `mailto` targets. Scripts, styles, SVG, event handlers, `javascript:` and `data:` links are removed, NUL characters are stripped, and nesting is capped at 64.
 - The browser renders stored HTML only through TipTap's schema, never through `dangerouslySetInnerHTML`. That is two independent layers.
 

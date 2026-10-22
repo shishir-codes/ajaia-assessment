@@ -42,7 +42,7 @@ My standing rules (the CLAUDE.md file Claude Code loads at the start of every se
 ## Where AI materially sped up the work
 
 - **Parallel build against one contract.** Backend and frontend were written at the same time, and the frontend's browser flows then ran against the real API and passed.
-- **Tests and fixtures in minutes.** 49 tests, including a real .docx file assembled inside the test.
+- **Tests and fixtures in minutes.** 52 tests, including a real .docx file assembled inside the test.
 - **Scripted QA that reruns after every fix.** 50 end to end checks in headless Edge, including two browser conflicts, access removed mid edit and phone widths.
 - **Docs and the walkthrough script**, written from the verified reports instead of from memory.
 
@@ -59,18 +59,21 @@ My standing rules (the CLAUDE.md file Claude Code loads at the start of every se
 | "StarterKit plus Underline" in the editor | StarterKit 3 already bundles Underline and Link, so the extension would be registered twice | Configured through StarterKit |
 | A save on leaving with `fetch` keepalive | Keepalive caps bodies at 64 KB, so large documents would be dropped silently | Normal fetch plus the browser's leave prompt |
 | Local query parsing where the last repeated key won | Vercel passes an array, so local and production disagreed (caught by the adversarial pass) | Parse exactly as Vercel does |
-| No upper bound on `baseVersion`, and NUL characters passed through | Postgres would answer 500 for an integer overflow or a NUL in text | 400 outside the valid range; NUL stripped (tested) |
+| No upper bound on `baseVersion`, and NUL characters passed through | Postgres would answer 500 for an integer overflow or a NUL in text | 400 outside the valid range; NUL stripped from text and refused in ids and emails (tested) |
+| File import with no limit on unzipped size or Markdown complexity | A 50 KB .docx can unzip to gigabytes and exhaust memory, and some Markdown takes seconds to parse (found by the adversarial review) | Unzipped size capped at 4 MB and Markdown complexity capped, both checked before parsing, with tests |
 | "Switch user" kept the open document's address | The next person signed in straight onto someone else's document | Switch user now returns to the home list |
 
 ## How correctness, UX and reliability were verified
 
 | Round | What ran | Result |
 |---|---|---|
-| Builder tests | `npm test`, repeated after each change (37 core tests, then 12 more for the safeguards) | 49 of 49 pass |
+| Builder tests | `npm test`, repeated after each change (37 core tests, 12 for the safeguards, 3 from the adversarial review) | 52 of 52 pass |
 | Live HTTP checks | `scripts/smoke.mjs` with real cookies as Alice, Bob and Carol | 39 of 39 pass |
 | Adversarial checks | 5 MB bodies, 20 simultaneous saves, junk cookies, SQL looking ids, unicode | 13 of 13 pass |
 | Frontend flows | Headless Edge: formatting, autosave, share, conflict, import, delete, phone width | 18 of 18 pass |
 | Reviewer style QA | Headless Edge on a fresh database: 32 main, 10 edge, 4 failure path and 4 switch user checks | 50 of 50 pass |
+| Live browser check | The production URL in headless Edge at desktop 1280 and phone 390 px, every flow from sign in to delete | 31 of 31 pass |
+| Visual pass | Desktop 1280, tablet 768 with reduced motion, phone 390 px | 32 of 32 flows pass, no horizontal scrolling |
 
 - **UX:** issues found during these runs and the screenshot reviews were fixed: paragraphs running together, a conflict banner that scrolled out of view, a size message that read as contradictory, a role badge that jumped while typing, and banner wording that implied "Keep mine" merges changes.
 - **Reliability:** a hard kill and restart on a file database kept every document and session, and the demo documents did not come back after deletion. A simulated network failure showed "Could not save, retrying" and recovered with "Retry now".

@@ -359,6 +359,15 @@ describe('validation and limits', () => {
     assert.equal(doc.title, 'Nul title');
     assert.equal(doc.content, '<p>ab</p>');
   });
+
+  test('NUL characters in ids and emails answer 400, not a server error', async () => {
+    const doc = await create(alice, { title: 'Nul ids' });
+    assert.equal((await getDoc(alice, `${doc.id}\u0000`)).status, 400);
+    assert.equal((await patch(alice, `x\u0000`, { title: 'x', baseVersion: 1 })).status, 400);
+    assert.equal((await share(alice, doc.id, 'bob@example.com\u0000', 'viewer')).status, 400);
+    assert.equal((await api.call('GET', `/shares?documentId=${encodeURIComponent('a\u0000')}`, { cookie: alice })).status, 400);
+    assert.equal((await api.call('POST', '/session', { body: { email: 'alice@example.com\u0000' } })).status, 400);
+  });
 });
 
 describe('sanitizing', () => {
