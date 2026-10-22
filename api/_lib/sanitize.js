@@ -1,5 +1,6 @@
 // Every piece of document HTML goes through here before it is stored: editor saves, new
 // documents and imports. The browser only ever renders it through TipTap.
+import './htmlparser2-shim.js'; // must stay first: lets sanitize-html load on Vercel (see that file)
 import sanitizeHtml from 'sanitize-html';
 
 export const ALLOWED_TAGS = [
