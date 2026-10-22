@@ -3,6 +3,7 @@
 // Local dev and tests: PGlite (Postgres compiled to WASM), loaded with a dynamic import only
 // when no connection string is set, stored in PGLITE_DIR (default .data/pglite; tests use memory://).
 import { randomUUID } from 'node:crypto';
+import { mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { neon } from '@neondatabase/serverless';
 import { HttpError } from './errors.js';
@@ -90,7 +91,10 @@ async function createDriver() {
   }
   const dir = String(process.env.PGLITE_DIR || '').trim() || '.data/pglite';
   const { PGlite } = await import('@electric-sql/pglite');
-  const db = new PGlite(dir.startsWith('memory://') ? dir : path.resolve(dir));
+  const memory = dir.startsWith('memory://');
+  // PGlite creates only the last folder of its path, and a fresh clone has no .data folder yet.
+  if (!memory) mkdirSync(path.dirname(path.resolve(dir)), { recursive: true });
+  const db = new PGlite(memory ? dir : path.resolve(dir));
   await db.waitReady;
   return {
     kind: 'pglite',

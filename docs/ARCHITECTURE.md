@@ -18,7 +18,7 @@ Browser: React 19 SPA, TipTap editor, hash routes #/ and #/doc/<id>
    |   same origin fetch, JSON, HttpOnly session cookie
    v
 Vercel serverless functions (Node.js): api/*.js, one file per route
-   |   session check > input validation > permission check > one SQL statement
+   |   session check > input validation > permission check > parameterised SQL
    v
 Postgres: Neon over HTTP in production, PGlite (Postgres in WebAssembly) locally and in tests
 ```
@@ -65,7 +65,7 @@ Ownership lives on the document; sharing is one row per person with a role. Dele
 ## Sanitising
 
 - One allowlist runs on every write: create, save and import. Allowed: `p br strong b em i u s h1 h2 h3 ul ol li blockquote code pre hr a`.
-- Uploads are checked before parsing: a .docx may unzip to at most 4 MB, so a "zip bomb" is refused, and Markdown complexity is capped, so no single file can stall or crash the server.
+- Uploads are checked before parsing: a .docx may unzip to at most 4 MB, so a "zip bomb" is refused, and Markdown built to stall the parser is refused too; both limits are pinned by tests.
 - Links keep only absolute `http`, `https` and `mailto` targets. Scripts, styles, SVG, event handlers, `javascript:` and `data:` links are removed, NUL characters are stripped, and nesting is capped at 64.
 - The browser renders stored HTML only through TipTap's schema, never through `dangerouslySetInnerHTML`. That is two independent layers.
 
@@ -79,7 +79,7 @@ Ownership lives on the document; sharing is one row per person with a role. Dele
 
 ## Safeguards
 
-Per user caps (100 documents, 20 new documents per 10 minutes, counted in the database inside the insert statement itself, so they hold across every server instance), per instance rate limits (120 saves and 30 share changes per user per minute, 20 sign ins per IP per minute), size limits on every input, security headers on every response, and `node scripts/reset-demo.mjs` to restore the demo documents. Full table in the [README](../README.md#public-demo-safeguards).
+Per user caps (100 documents, 20 new documents per 10 minutes, counted in the database inside the insert statement itself, so every server instance shares one count), per instance rate limits (120 saves and 30 share changes per user per minute, 20 sign ins per IP per minute), size limits on every input, security headers on every response, and `node scripts/reset-demo.mjs` to restore the demo documents. Full table in the [README](../README.md#public-demo-safeguards).
 
 ## Deliberate scope decisions
 
@@ -89,7 +89,7 @@ Per user caps (100 documents, 20 new documents per 10 minutes, counted in the da
 | Comments | Outside the core create, edit and share flow | A comments table anchored to text ranges |
 | Real authentication | Seeded demo users keep the review frictionless; sessions and roles are still enforced on the server | OAuth or magic links, server side session expiry |
 | Version history | Every save already increments a version number | A versions table written on each save, plus restore |
-| Attachment storage | Importing into an editable document is the more useful flow and keeps requests under 2 MB | Direct to storage uploads with signed URLs |
+| Attachment storage | Importing into an editable document is the more useful flow, with each imported file capped at 2 MB | Direct to storage uploads with signed URLs |
 | Export | Stretch goal behind the core flows | Download as HTML, Markdown or .docx |
 
 ## The next 2 to 4 hours

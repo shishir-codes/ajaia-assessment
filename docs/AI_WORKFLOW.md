@@ -50,7 +50,7 @@ My standing rules (the CLAUDE.md file Claude Code loads at the start of every se
 
 | What the AI first produced | Why it was wrong | What we did |
 |---|---|---|
-| A request helper that capped JSON bodies at 64 KB | A 2 MB file is about 2.7 MB as base64, so every real import would have failed | Raised the cap to 4 MB with the contract's `too_large` code |
+| A request helper that capped JSON bodies at 64 KB | A 2 MB file is about 2.7 MB as base64, so any file over about 48 KB would have failed to import | Raised the cap to 4 MB with the contract's `too_large` code |
 | A local server that loaded `.env` files when imported | Tests could pick up a real `DATABASE_URL` and write test data into production | Env loading only when run directly, plus a test guard that refuses any database except PGlite |
 | Separate saves for the title and the content | Both carry the same version, so the second would conflict with your own first save | One serialized save queue |
 | "Keep mine" that overwrote the whole document | A title only edit would wipe a collaborator's text | Resend only the fields this person changed |

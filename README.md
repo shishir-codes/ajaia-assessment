@@ -28,7 +28,7 @@ Pick a seeded account on the first screen. There are no passwords, and the serve
 | carol@example.com (Carol Lee) | Nothing yet: use her to confirm that unshared documents stay private |
 
 1. **Sign in as Alice.** Home shows "My documents" and "Shared with me", each row with a role badge.
-2. **New document.** Type a title and press Enter, then write and format with the toolbar. The status moves from "Unsaved changes" to "Saving..." to "Saved". Reload the page: everything is still there.
+2. **New document.** Replace "Untitled document" at the top with your own title and press Enter, then write and format with the toolbar. The status moves from "Unsaved changes" to "Saving..." to "Saved". Reload the page: everything is still there.
 3. **Import file.** Choose a .txt, .md or .docx file of up to 2 MB. It opens as a new, editable document.
 4. **Share.** Add bob@example.com with "Can view", then press "Switch user" and sign in as Bob. The document is under "Shared with me", read only, with no toolbar.
 5. **Conflict.** Open one document in two tabs. Edit in the first tab, then in the second. The second save is stopped before it overwrites anything, and the banner offers "Load latest" or "Keep mine".
@@ -47,7 +47,7 @@ Pick a seeded account on the first screen. There are no passwords, and the serve
 | Permissions | Owner, editor and viewer rules are enforced on the server for every request. No access answers 404, so a document's existence is never revealed. |
 | Concurrency | A stale save gets 409 and the editor offers "Load latest" or "Keep mine". 20 simultaneous saves from one version produce exactly one success. |
 | Access changes mid edit | If the owner removes access or downgrades an editor while they type, the editor locks, explains why and keeps their text on screen to copy. |
-| Layout and access | Responsive at desktop and phone widths (checked at 1280 px desktop and 390 and 320 px phone widths). Labelled controls, visible focus, keyboard friendly dialogs. |
+| Layout and access | Responsive at desktop and phone widths (checked at 1280 px desktop, 768 px tablet and 390 px phone widths). Labelled controls, visible focus, keyboard friendly dialogs. |
 
 ## Supported imports
 
@@ -64,12 +64,12 @@ The 2 MB limit is checked in the browser first and again on the server. Other ty
 - **Guardrails before speed.** I build with AI under a standing rules file (CLAUDE.md) that Claude Code loads every session. The agent surfaces risk before acting and stops for my explicit go ahead on anything that touches production servers, DNS, secrets, deploys, spending or credentials.
 - **Plans name their risks.** Every plan states what changes, the blast radius, the edge cases (empty, malformed, oversized, unicode, concurrent, partial failure, retry, permission denied, upstream failure, second run), how we would know it broke, and how to roll back.
 - **Verification by risk.** Highest risk first: availability, anything that writes, anything that spends, security, then surfaces. Nothing is called verified unless it was actually run, and failures are reported with their real output.
-- **A human makes the calls.** I set the goal, the timebox, the scope and the stack, and I made the product and risk decisions listed in [docs/AI_WORKFLOW.md](docs/AI_WORKFLOW.md).
+- **A human makes the calls.** I set the goal and the timebox, approved the scope and the stack, and made the product and risk decisions listed in [docs/AI_WORKFLOW.md](docs/AI_WORKFLOW.md).
 - **Secrets stay out of code.** Database credentials stay out of the repo and the submission folder; production reads them from Vercel environment variables. A scan of the repo for connection strings and keys finds nothing.
 
 ## Run it locally
 
-Needs Node.js 20.19 or newer (Node 22 LTS recommended).
+Needs Node.js 22.12 or newer (checked with Node 24).
 
 ```bash
 git clone https://github.com/shishir-codes/ajaia-assessment.git
@@ -80,7 +80,7 @@ npm run dev
 
 Open http://localhost:5200. `npm run dev` starts Vite on port 5200 and the local API on 127.0.0.1:5288, and Vite proxies `/api` to it.
 
-No database setup is needed. Without `DATABASE_URL`, the API uses PGlite (full Postgres compiled to WebAssembly) stored in `.data/pglite`, which is git ignored. The schema and the demo data are created on first use. To use a real Postgres database instead, copy `.env.example` to `.env.local` and set `DATABASE_URL`.
+No database setup is needed. Without `DATABASE_URL`, the API uses PGlite (full Postgres compiled to WebAssembly) stored in `.data/pglite`, which is git ignored. The schema and the demo data are created on first use. To use a Neon Postgres database instead, copy `.env.example` to `.env.local` and set `DATABASE_URL` to its connection string.
 
 | Command | What it does |
 |---|---|
@@ -92,7 +92,7 @@ No database setup is needed. Without `DATABASE_URL`, the API uses PGlite (full P
 
 ## Tests and verification
 
-`npm test` runs 52 tests in 19 suites with Node's built in test runner against PGlite in memory: no network, no keys, about 15 seconds.
+`npm test` runs 52 tests in 19 suites with Node's built in test runner against PGlite in memory: no network, no keys, about 15 to 30 seconds.
 
 - **Access matrix:** owner, editor, viewer and a stranger, for read, edit, share and delete.
 - **Sessions:** 401 on every protected call, forged and tampered cookies rejected and cleared, 405 with an Allow header.
@@ -111,7 +111,7 @@ Beyond the automated suite:
 | Adversarial HTTP checks: 5 MB bodies, 20 simultaneous saves, junk cookies, SQL looking ids, Hebrew, emoji and CJK text | 13 of 13 pass |
 | Adversarial review of file import | A .docx "zip bomb" and Markdown built to stall the parser are refused before parsing, each pinned by a test |
 | Scripted browser QA in headless Microsoft Edge on a fresh database, including two browser conflicts and access loss mid edit | 50 of 50 pass |
-| Desktop 1280, tablet 768 (with reduced motion) and phone 390 and 320 px, plus the share dialog at 375 px | No horizontal scrolling; the toolbar wraps and Share and Delete become icon buttons; 32 of 32 visual flows pass |
+| Desktop 1280, tablet 768 (with reduced motion) and phone 390 px | No horizontal scrolling; the toolbar wraps and Share and Delete become icon buttons; 32 of 32 visual flows pass |
 | Restart on a file database | Documents and sessions survive; deleted demo documents stay deleted |
 
 ## Deployment
@@ -162,7 +162,7 @@ vercel.json          Functions, single page app rewrite, security headers
 
 ## Public demo safeguards
 
-The live app is public, so reviewers can test freely without breaking anything for the next person. The document cap and the creation rate are counted in the database, inside the insert statement itself, so they hold across every server instance.
+The live app is public, so reviewers can test freely without breaking anything for the next person. The document cap and the creation rate are counted in the database, inside the insert statement itself, so every server instance shares one count.
 
 | Safeguard | Limit | Response |
 |---|---|---|

@@ -22,7 +22,7 @@ Designed, built, tested, deployed on Vercel with a Neon Postgres database, docum
 
 ## In the Google Drive folder
 
-- `README.md`, `ARCHITECTURE.md`, `AI_WORKFLOW.md`, `SUBMISSION.md` and `VIDEO_URL.txt`
+- `README.md`, `ARCHITECTURE.md`, `AI_WORKFLOW.md`, `SUBMISSION.md`, `VIDEO_URL.txt` and `LIVE_URL.txt`
 - `screenshots/` with the nine screenshots
 - The source code as a zip of the final commit
 
