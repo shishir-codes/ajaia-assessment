@@ -1,0 +1,9 @@
+# Files the Vercel CLI must never upload. Vercel builds from source, so local builds are skipped too.
+node_modules
+dist
+.env
+.env.*
+!.env.example
+*.log
+# Local PGlite database (dev data)
+.data

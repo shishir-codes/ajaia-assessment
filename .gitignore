@@ -1,16 +1,20 @@
-# secrets: never commit
+# Dependencies and build output
+node_modules
+dist
+
+# Vercel project link (created by the Vercel CLI)
+.vercel
+
+# Secrets: never commit real keys. Only the example file is tracked.
 .env
 .env.*
 !.env.example
 
-# build output and dependencies
-node_modules/
-dist/
-build/
-__pycache__/
-*.pyc
-
-# tools and logs
-.vercel
+# Logs and OS files
 *.log
+npm-debug.log*
 .DS_Store
+Thumbs.db
+
+# Local PGlite database (dev data, never committed)
+.data/
