@@ -129,7 +129,13 @@ function SaveStatus({ status, detail, onRetry }) {
     <span className={`save-status save-${status}`}>
       <span role="status" aria-live="polite" className="save-status-text" title={detail || undefined}>
         {status === 'saved' ? <CheckIcon className="icon-xs" /> : null}
-        {status === 'saving' ? <span className="spinner" aria-hidden="true" /> : null}
+        {status === 'saving' ? (
+          <span className="save-dots" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </span>
+        ) : null}
         {failed || status === 'conflict' ? <AlertIcon className="icon-xs" /> : null}
         {STATUS_TEXT[status] || ''}
       </span>

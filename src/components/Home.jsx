@@ -4,7 +4,7 @@ import { api } from '../lib/api.js';
 import { fullDate, timeAgo } from '../lib/format.js';
 import { readFileAsBase64, validateImportFile } from '../lib/importFile.js';
 import { docHref, navigate } from '../lib/router.js';
-import { AlertIcon, CloseIcon, DocIcon, PlusIcon, UploadIcon } from './Icons.jsx';
+import { AlertIcon, CloseIcon, DocIcon, EmptyPagesArt, PlusIcon, UploadIcon } from './Icons.jsx';
 
 export function RoleBadge({ role }) {
   return <span className={`badge badge-${role}`}>{ROLE_LABEL[role] || role}</span>;
@@ -16,6 +16,11 @@ function DocRow({ doc, shared, user }) {
     <li>
       <a className="doc-row" href={docHref(doc.id)}>
         <DocIcon className="doc-row-icon" />
+        <span className="doc-thumb" aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </span>
         <span className="doc-row-main">
           <span className="doc-row-title">{doc.title || 'Untitled document'}</span>
           <span className="doc-row-meta">
@@ -41,6 +46,7 @@ function DocSection({ id, title, docs, shared, user, emptyTitle, emptyText }) {
       </h2>
       {docs.length === 0 ? (
         <div className="state state-empty">
+          <EmptyPagesArt />
           <p className="state-title">{emptyTitle}</p>
           <p className="state-text">{emptyText}</p>
         </div>
